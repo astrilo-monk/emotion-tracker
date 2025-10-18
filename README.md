@@ -69,11 +69,3 @@ This architecture **decouples** the display FPS from the analysis FPS. You get a
 
 ---
 
-## Usage
-
-### 1. Real-Time Webcam Analysis
-
-Run the main script from your terminal.
-
-```bash
-python realtime_deepface_fast_inverted.py
