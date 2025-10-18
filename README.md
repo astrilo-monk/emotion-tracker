@@ -50,8 +50,9 @@ This architecture **decouples** the display FPS from the analysis FPS. You get a
 
 1.  Clone this repository:
     ```bash
-    git clone <your-repo-url>
-    cd <your-repo-name>
+    # Replace 'your-repo-name' with the name of your actual repository
+    git clone [https://github.com/astrio-monk/your-repo-name.git](https://github.com/astrio-monk/your-repo-name.git)
+    cd your-repo-name
     ```
 
 2.  Install the required Python libraries. It's highly recommended to use a virtual environment.
