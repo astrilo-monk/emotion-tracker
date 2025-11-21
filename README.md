@@ -1,71 +1,157 @@
-# Optimized DeepFace Analysis (Real-Time and Static)
+#  Emotion Tracker
 
-This project provides two Python scripts for face analysis (age, gender, emotion) using the `DeepFace` library, with a focus on performance and usability.
+A full facial analysis system using DeepFace for detecting emotion, age, and gender.  
+Includes real-time webcam processing, static image batch analysis, and a web-based interface.
 
-1.  **`realtime_deepface_fast_inverted.py`**: A high-performance, multithreaded script for real-time webcam analysis.
-2.  **`analyze_static_images.py`**: A simple script to analyze a folder of static images (e.g., `test1.jpg`, `test2.jpg`) and display them as a slideshow.
+---
+
+## Overview
+
+This project provides three modes of operation:
+
+1. **Real-Time Analysis (`main.py`)**  
+   High-performance webcam analysis with multithreading for smoother FPS and non-blocking frame capture.
+
+2. **Static Image Analysis (`v2/v2.py`)**  
+   Processes a folder of test images (e.g., test1.jpg, test2.jpg) and displays results in a slideshow format.
+
+3. **Web Interface (`app.py`)**  
+   A Flask-based UI for uploading images through the browser and receiving age, gender, and emotion results.
 
 ---
 
 ## Features
 
-* **High-FPS Real-Time Analysis**: The webcam script uses a multithreaded, queued architecture to achieve a smooth display framerate, independent of the analysis speed.
-* **Decoupled Analysis**: A dedicated worker thread handles the slow `DeepFace.analyze()` calls, so it doesn't block the main display loop.
-* **Non-Blocking Camera Feed**: A capture thread reads from the webcam, preventing I/O lag.
-* **Mirrored "Selfie" Mode**: The webcam feed is horizontally flipped for a more intuitive, natural-feeling display.
-* **Robust Fallback**: If `DeepFace` fails to find a face, the script falls back to a faster OpenCV Haar Cascade detector to at least draw a box.
-* **Configurable**: Easily change camera index, analysis frequency, and resize dimensions in the `CONFIG` block of the real-time script.
+### Real-Time Mode (`main.py`)
+- Multithreaded architecture to separate capture, analysis, and display.
+- Stable FPS even when DeepFace analysis is slow.
+- Selfie-mode camera mirroring.
+- Fallback face detection using OpenCV Haar Cascade.
+- Configurable camera index, analysis frequency, and resolution.
 
----
+### Static Image Mode (`v2/v2.py`)
+- Scans a folder for files named `test1.jpg`, `test2.jpg`, etc.
+- Runs DeepFace analysis on each image.
+- Displays results in a timed slideshow window.
 
-## How the High-FPS Optimization Works
-
-The core problem with real-time analysis is that `DeepFace.analyze()` is **slow** (it runs a deep learning model) and `cv2.VideoCapture.read()` can be a **blocking I/O call**. Performing both in a single loop results in a laggy, low-FPS video stream.
-
-This script solves the problem by using **three parallel threads**:
-
-1.  **`VideoCaptureThread` (Capture Thread)**
-    * **Job**: Its *only* job is to constantly read frames from the webcam.
-    * **Queue**: It puts the latest frame into a small queue (`self.q`), overwriting old frames.
-    * **Benefit**: The main thread can grab the most recent frame from this queue *instantly* without waiting for the camera.
-
-2.  **`analysis_worker` (Worker Thread)**
-    * **Job**: Its *only* job is to perform the slow `DeepFace.analyze()` task.
-    * **Queues**: It waits for a frame to appear in an *input queue* (`in_q`), analyzes it, and puts the JSON *result* into an *output queue* (`out_q`).
-    * **Benefit**: The slow analysis happens on a separate core and does not block the display.
-
-3.  **`main` (Main/Display Thread)**
-    * **Job**: Runs the main `while True` loop as fast as possible to render the video.
-    * **Loop**:
-        1.  **Get Frame**: Instantly grabs the latest frame from the `VideoCaptureThread`'s queue.
-        2.  **Check for Result**: *Checks* (doesn't wait) if a new result is available in the `out_q` from the worker. If yes, it updates `last_result`.
-        3.  **Draw**: Draws the `last_result` (the most recent analysis data) onto the *current* frame.
-        4.  **Send Frame**: Every `N` frames, it sends a copy of the current frame to the `in_q` for the worker to analyze.
-
-This architecture **decouples** the display FPS from the analysis FPS. You get a smooth 30-60 FPS video feed, even if the analysis only runs 5-10 times per second.
+### Web Interface (`app.py`)
+- Upload an image through a browser.
+- Backend runs DeepFace analysis and returns a clean JSON response.
+- Frontend displays emotion, age, and gender in a styled UI.
+- Fully self-contained (HTML served from Flask).
 
 ---
 
 ## Installation
 
-1.  Clone this repository:
-    ```bash
-    # Replace 'your-repo-name' with the name of your actual repository
-    git clone [https://github.com/astrio-monk/your-repo-name.git](https://github.com/astrio-monk/your-repo-name.git)
-    cd your-repo-name
-    ```
+Clone the repository:
 
-2.  Install the required Python libraries. It's highly recommended to use a virtual environment.
+```
+git clone https://github.com/astrilo-monk/emotion-tracker.git
+cd emotion-tracker
+```
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+It is recommended to use a virtual environment:
 
-    A `requirements.txt` file should contain:
-    ```
-    opencv-python
-    deepface
-    ```
+```
+python -m venv venv
+venv\Scripts\activate        # Windows
+# source venv/bin/activate   # macOS / Linux
+```
+
+Install required libraries:
+
+```
+pip install -r requirements.txt
+```
+
+If you prefer installing manually (local setup):
+
+```
+1. pip install opencv-python deepface
+2. pip install tensorflow
+3. pip install tensorflow[and-cuda]     (optional, GPU users only)
+4. pip install mtcnn retina-face mediapipe   (optional detectors)
+5. pip install flask gunicorn numpy         (web interface)
+```
 
 ---
+
+## Running the Web Interface
+
+Start the Flask server:
+
+```
+python app.py
+```
+
+Visit the web UI:
+
+```
+http://127.0.0.1:5000/
+```
+
+Upload an image and view the results directly in the browser.
+
+Video showcasing the website:: 
+https://github.com/user-attachments/assets/0d5a6d3f-df59-44a0-8ee0-6f5e51be8c1a
+
+## Running Real-Time Webcam Mode
+
+```
+python main.py
+```
+
+This opens a live webcam window with continuously updated results.
+
+---
+
+## Running Static Image Mode
+
+Place test images inside the `v2/` folder with names like:
+
+```
+test1.jpg
+test2.jpg
+test3.jpg
+```
+
+Then run:
+
+```
+python v2/v2.py
+```
+
+---
+
+## Project Structure
+
+```
+emotion-tracker/
+│
+├── app.py                # Web backend (Flask)
+├── main.py               # Real-time webcam analyzer
+├── requirements.txt      
+├── README.md
+│
+├── templates/
+│   └── index.html        # Web UI
+│
+└── v2/
+    ├── v2.py             # Static image analyzer
+    ├── test1.jpg
+    ├── test2.jpg
+    ├── ...
+```
+
+---
+
+## Notes
+
+- First DeepFace analysis may take time due to model loading.
+- For deployment, a long-running Python environment is required (Render recommended).
+- GPU acceleration is optional but provides faster inference if supported.
+
+---
+
 
