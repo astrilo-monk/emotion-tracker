@@ -93,7 +93,8 @@ http://127.0.0.1:5000/
 
 Upload an image and view the results directly in the browser.
 
-Video showcasing the website:: 
+## Demo Video
+
 https://github.com/user-attachments/assets/0d5a6d3f-df59-44a0-8ee0-6f5e51be8c1a
 
 ## Running Real-Time Webcam Mode
