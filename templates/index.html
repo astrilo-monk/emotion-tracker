@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌐 Cyber-Gaze Interface</title>
+  <style>
+    /* 🎨 Color Scheme & Variables */
+    :root {
+      --primary-bg: #1A0D2E; /* Deep Dark Purple */
+      --secondary-bg: #2B154F; /* Card BG */
+      --accent-color: #FF6EFF; /* Bright Magenta/Pink for Highlight */
+      --data-color: #8CFFFD; /* Cyan for Data Text */
+      --text-color: #E0E0E0;
+      --error-color: #F74C78;
+    }
+
+    /* 🌌 Base Styles */
+    body {
+      font-family: 'Consolas', monospace;
+      background-color: var(--primary-bg);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+      perspective: 1000px; /* Needed for 3D transforms */
+    }
+
+    /* 🧱 Core Container for Parallax Effect */
+    #main-wrapper {
+        width: 100%;
+        max-width: 500px;
+        transition: transform 0.1s ease-out; /* Smooth transition for tilt */
+    }
+
+    /* 🧱 Card Layout */
+    .container {
+      background: var(--secondary-bg);
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 0 20px rgba(255, 110, 255, 0.2);
+      width: 100%;
+      margin: 20px auto;
+      z-index: 1;
+      transform-style: preserve-3d; /* Allows inner elements to have their own 3D space */
+    }
+
+    /* 🖋️ Typography */
+    h1 {
+      color: var(--accent-color);
+      text-align: center;
+      font-size: 1.8em;
+      margin-bottom: 25px;
+      text-shadow: 0 0 5px rgba(255, 110, 255, 0.7);
+    }
+
+    h2 {
+      color: var(--data-color);
+      font-size: 1.2em;
+      margin-top: 0;
+      border-bottom: 1px solid rgba(140, 255, 253, 0.3);
+      padding-bottom: 5px;
+    }
+
+    /* ⚙️ Form and Input Styling */
+    #form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .file-upload-label {
+      display: block;
+      padding: 15px 20px;
+      background-color: #402470;
+      color: var(--text-color);
+      border: 2px dashed var(--accent-color);
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .file-upload-label:hover {
+      background-color: #503185;
+      box-shadow: 0 0 10px var(--accent-color);
+    }
+
+    /* Button Styling */
+    button[type="submit"] {
+      padding: 12px 25px;
+      background-color: var(--accent-color);
+      color: var(--primary-bg);
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.1s, box-shadow 0.3s;
+      font-weight: bold;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #FF94FF;
+      box-shadow: 0 0 15px var(--accent-color);
+    }
+
+    button[type="submit"]:active {
+      transform: scale(0.98);
+    }
+
+    button[type="submit"]:disabled {
+      background-color: #503185;
+      color: #999;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* 📊 Result Area */
+    #result-card {
+      background: var(--primary-bg);
+      border: 1px solid var(--data-color);
+      padding: 20px;
+      border-radius: 8px;
+      min-height: 80px;
+      box-sizing: border-box;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      line-height: 1.6;
+      color: var(--data-color);
+    }
+
+    /* Feedback/State Styles */
+    .loading {
+      color: var(--accent-color);
+      font-weight: bold;
+      animation: neon-pulse 1.5s infinite alternate;
+      border-color: var(--accent-color) !important;
+    }
+
+    .error {
+      color: var(--error-color);
+      font-weight: bold;
+      border-color: var(--error-color) !important;
+    }
+
+    .success {
+      color: var(--data-color);
+    }
+
+    @keyframes neon-pulse {
+      0% { opacity: 0.8; text-shadow: none; }
+      100% { opacity: 1; text-shadow: 0 0 8px var(--accent-color); }
+    }
+
+    /* 📱 Responsiveness */
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      .container {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 1.4em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="main-wrapper">
+    <div class="container">
+      <h1><span style="color: var(--data-color);">//</span> CYBER-GAZE INTERFACE</h1>
+
+      <form id="form">
+        <input type="file" id="image" name="image" accept="image/*" required>
+        <label for="image" class="file-upload-label" id="file-label">
+          <span id="label-text">[[ UPLOAD IMAGE FILE... ]]</span>
+        </label>
+        <button type="submit" id="submit-btn">INITIATE ANALYSIS</button>
+      </form>
+    </div>
+
+    <div class="container">
+      <h2>:: OUTPUT LOG ::</h2>
+      <pre id="result-card">Awaiting Data. Select file and Initiate Analysis.</pre>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("form");
+    const resultCardEl = document.getElementById("result-card");
+    const fileInput = document.getElementById("image");
+    const fileLabelEl = document.getElementById("file-label");
+    const labelTextEl = document.getElementById("label-text");
+    const submitBtn = document.getElementById("submit-btn");
+    const mainWrapper = document.getElementById("main-wrapper"); // New element
+
+    // --- NEW PARALLAX (TILT) REACTIVITY LOGIC ---
+    mainWrapper.addEventListener('mousemove', (e) => {
+      // Calculate center of the element
+      const rect = mainWrapper.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      // Calculate position relative to center (-1 to 1)
+      const x = (e.clientX - centerX) / (rect.width / 2); // -1 when far left, 1 when far right
+      const y = (e.clientY - centerY) / (rect.height / 2); // -1 when far top, 1 when far bottom
+
+      // Define max tilt angle (e.g., 5 degrees)
+      const maxTilt = 5;
+
+      // Calculate rotation: tilt Y axis based on mouse X (horizontal movement)
+      // tilt X axis based on mouse Y (vertical movement)
+      const rotateY = x * maxTilt;
+      const rotateX = y * -maxTilt; // Negative to tilt correctly for top/bottom
+
+      // Apply the 3D transform
+      mainWrapper.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+    });
+
+    // Reset tilt when mouse leaves the element
+    mainWrapper.addEventListener('mouseleave', () => {
+      mainWrapper.style.transform = 'rotateY(0deg) rotateX(0deg)';
+    });
+
+    // --- APPLICATION LOGIC ---
+
+    // Update label when file is selected
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        const name = fileInput.files[0].name;
+        const display = name.length > 30 ? name.substring(0, 27) + '...' : name;
+        labelTextEl.innerHTML = `[[ FILE LOADED: ${display} ]]`;
+      } else {
+        labelTextEl.textContent = '[[ UPLOAD IMAGE FILE... ]]';
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const file = fileInput.files[0];
+      if (!file) {
+        resultCardEl.textContent = "::ERROR:: Data Stream Interrupted. No file selected.";
+        resultCardEl.className = 'error';
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append("image", file);
+
+      // ⚙️ UI State: Loading
+      resultCardEl.textContent = "::PROCESSING:: Executing Algorithm. Standby...";
+      resultCardEl.className = 'loading';
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch("/analyze", {
+          method: "POST",
+          body: fd
+        });
+
+        const contentType = res.headers.get("content-type") || "";
+
+        // Server check (critical system failure)
+        if (!contentType.includes("application/json")) {
+          const text = await res.text();
+          resultCardEl.textContent =
+            "::FATAL ERROR:: Endpoint Failure. Expected JSON, got HTTP " + res.status +
+            "\n\nRAW DUMP (Snippet):\n" + text.substring(0, 100) + "...";
+          resultCardEl.className = 'error';
+          return;
+        }
+
+        const data = await res.json();
+
+        if (data.error) {
+          resultCardEl.textContent = "::ANALYSIS FAULT:: " + data.error;
+          resultCardEl.className = 'error';
+          return;
+        }
+
+        // Formatted, stylized output
+        const lines = [
+          "// ANALYSIS COMPLETE",
+          "--------------------------------",
+          `[ RESULT ] EMOTION : ${data.emotion.toUpperCase()}`,
+          `[ RESULT ] AGE     : ${data.age} CYCLES`,
+          `[ RESULT ] GENDER  : ${data.gender.toUpperCase()}`,
+          "--------------------------------",
+          "// DATA BLOCK CLOSED"
+        ];
+
+        resultCardEl.textContent = lines.join("\n");
+        resultCardEl.className = 'success'; // 🚀 UI State: Success
+
+      } catch (err) {
+        resultCardEl.textContent = "::NETWORK FAILURE:: Connection timeout or server unresponsive.\nMessage: " + err.message;
+        resultCardEl.className = 'error'; // ❌ UI State: Error
+      } finally {
+        // 🔄 Reset button state
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

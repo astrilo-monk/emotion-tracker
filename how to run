@@ -3,4 +3,7 @@ download these locally on your pc before running --
   1. pip install opencv-python deepface (installs opencv and deepface)
   2. pip install tensorflow (ML framework)
   3. pip install tensorflow[and-cuda] (for better fps and only if you have gpu)
-  3. pip install mtcnn retina-face mediapipe (optional )
+  4. pip install mtcnn retina-face mediapipe (optional )
+  5. pip install flask gunicorn numpy
+     (required for running the web interface; flask = UI server, gunicorn = production server, numpy = core math lib)
+
